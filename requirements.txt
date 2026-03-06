@@ -1,0 +1,10 @@
+colorama==0.4.6
+numpy==1.23.5
+opencv_python==4.10.0.84
+opencv_python_headless==4.6.0.66
+openwakeword==0.6.0
+python-dotenv==1.2.2
+PyYAML==6.0.3
+scipy==1.17.1
+sounddevice==0.4.6
+websockets==14.2
