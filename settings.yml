@@ -1,0 +1,17 @@
+environment_variables:
+  - GEMINI_API_KEY
+  - GEMINI_PROXY
+
+storage_folder: "storage"
+
+wake_word_settings:
+  model_name: "wake_word_models/alexa_v0.1.onnx"
+  threshold: 0.4
+  cooldown_sec: 3.0
+  init_delay_sec: 3.0
+
+assistant_settings:
+  silence_timeout: 90
+  enable_ducking: true
+
+load_dotenv: true
