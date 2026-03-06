@@ -1,0 +1,8 @@
+[submodule "gemini_engine"]
+	path = gemini_engine
+	url = https://github.com/Emeteil/gemini_engine
+	branch = main
+[submodule "wake_word"]
+	path = wake_word
+	url = https://github.com/Emeteil/wake_word
+	branch = main
