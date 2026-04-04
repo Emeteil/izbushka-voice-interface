@@ -8,3 +8,4 @@ PyYAML==6.0.3
 scipy==1.17.1
 sounddevice==0.4.6
 websockets==14.2
+requests

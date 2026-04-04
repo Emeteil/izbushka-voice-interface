@@ -1,6 +1,7 @@
 from dotenv import load_dotenv
 from gemini_engine import GeminiVA
 from gemini_engine.handlers import DefaultCameraHandler
+from custom_handlers import LoopbackCameraHandler
 from wake_word.detector import WakeWordDetector
 import yaml, os
 
@@ -29,7 +30,9 @@ va = GeminiVA(
     proxy=settings.get("GEMINI_PROXY"),
     silence_timeout=settings.get("assistant_settings", {}).get("silence_timeout", None),
     enable_ducking=settings.get("assistant_settings", {}).get("enable_ducking", False),
-    media_handler=DefaultCameraHandler()
+    media_handler=LoopbackCameraHandler(
+        url=f"http://127.0.0.1:80/api/webcam/stream?token={settings.get('MASTER_TOKEN')}"
+    )
 )
 
 detector = WakeWordDetector(

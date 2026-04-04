@@ -1,6 +1,7 @@
 environment_variables:
   - GEMINI_API_KEY
   - GEMINI_PROXY
+  - MASTER_TOKEN
 
 storage_folder: "storage"
 

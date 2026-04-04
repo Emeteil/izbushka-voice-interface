@@ -9,6 +9,7 @@ import subprocess
 
 from settings import *
 import external_tools.get_current_time
+import external_tools.set_emotion
 
 class GeminiCLI:
     def __init__(self, va_instance: Any, detector_instance: Any):
