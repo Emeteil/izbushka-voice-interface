@@ -15,4 +15,9 @@ assistant_settings:
   silence_timeout: 90
   enable_ducking: true
 
+web_core:
+  host: "127.0.0.1"
+  port: 80
+  reconnect_interval: 5.0
+
 load_dotenv: true

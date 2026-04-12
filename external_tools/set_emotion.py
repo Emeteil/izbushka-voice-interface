@@ -29,8 +29,9 @@ class SetEmotion(BaseTool):
     
     def execute(self, emotion: str) -> Dict[str, Any]:
         master_token = settings.get("MASTER_TOKEN")
-        host = "127.0.0.1"
-        port = 80
+        web_core = settings.get("web_core", {})
+        host = web_core.get("host", "127.0.0.1")
+        port = web_core.get("port", 80)
         url = f"http://{host}:{port}/api/emotions/current"
         
         params = {"token": master_token}
