@@ -18,7 +18,8 @@ class GeminiCLI:
         self.va = va_instance
         self.detector = detector_instance
         self.link = link
-        self.is_calling = False
+        self._call_lock = threading.Lock()
+        self._is_calling = False
 
         logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", force=True)
         self.logger = logging.getLogger(self.__class__.__name__)
@@ -77,15 +78,32 @@ class GeminiCLI:
                     cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL
                 ), daemon=True).start()
 
+    @property
+    def is_calling(self) -> bool:
+        with self._call_lock:
+            return self._is_calling
+
+    def _try_acquire_call(self) -> bool:
+        with self._call_lock:
+            if self._is_calling:
+                return False
+            self._is_calling = True
+            return True
+
+    def _release_call(self) -> None:
+        with self._call_lock:
+            self._is_calling = False
+
     def handle_status_change(self, status: str) -> None:
         if status == "online":
-            self.is_calling = True
+            with self._call_lock:
+                self._is_calling = True
             self._play_sound("connect")
             self.logger.info(f"{Fore.GREEN}[SYS]{Style.RESET_ALL} Ассистент ONLINE. Можете говорить.")
             if self.link:
                 self.link.send_event("voice.status_changed", {"status": "active"})
         else:
-            self.is_calling = False
+            self._release_call()
             self._play_sound("disconnect")
             self.logger.info(f"{Fore.YELLOW}[SYS]{Style.RESET_ALL} Звонок завершен. Ассистент OFFLINE.")
             self.logger.info(f"{Fore.CYAN}[SYS]{Style.RESET_ALL} Ожидание wake word...")
@@ -98,13 +116,14 @@ class GeminiCLI:
         self.detector.pause()
         if self.link:
             self.link.send_event("voice.status_changed", {"status": "wake_word_detected", "word": detected_word})
-        if not self.is_calling:
-            threading.Thread(target=self.run_va, daemon=True).start()
+        if self._try_acquire_call():
+            threading.Thread(target=self._run_va_guarded, daemon=True).start()
+        else:
+            self.logger.info(f"{Fore.YELLOW}[SYS]{Style.RESET_ALL} Звонок уже активен, повторный запуск пропущен.")
 
     def _on_remote_trigger(self):
         self.logger.info(f"{Fore.GREEN}[REMOTE]{Style.RESET_ALL} Удалённый вызов ассистента")
-        if not self.is_calling:
-            self.on_wake_word("remote_trigger")
+        self.on_wake_word("remote_trigger")
 
     def _on_remote_stop(self):
         self.logger.info(f"{Fore.YELLOW}[REMOTE]{Style.RESET_ALL} Удалённая остановка ассистента")
@@ -119,6 +138,12 @@ class GeminiCLI:
             asyncio.run(self.va.run())
         except Exception as e:
             self.logger.error(f"Error in run_va: {e}", exc_info=True)
+
+    def _run_va_guarded(self) -> None:
+        try:
+            self.run_va()
+        finally:
+            self._release_call()
 
     def start(self):
         wake_word_model = settings.get("wake_word_settings", {}).get("model_name", "alexa")
