@@ -62,9 +62,9 @@ class SetEmotion(BaseTool):
 
     def execute(self, emotion: str) -> Dict[str, Any]:
         url = f"{_web_core_base_url()}/api/emotions/current"
-        params = {"token": settings.get("MASTER_TOKEN")}
+        headers = {"Authorization": f"Bearer {settings.get('MASTER_TOKEN')}"}
         try:
-            response = requests.put(url, params=params, json={"emotion": emotion}, timeout=5)
+            response = requests.put(url, headers=headers, json={"emotion": emotion}, timeout=5)
             response.raise_for_status()
             return {"status": "success", "result": response.json()}
         except Exception as e:

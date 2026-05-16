@@ -11,6 +11,10 @@ from settings import *
 from voice_link import VoiceLink
 import external_tools.get_current_time
 import external_tools.set_emotion
+import external_tools.search_knowledge
+import external_tools.documents
+import external_tools.get_contacts
+import external_tools.save_question
 
 
 class GeminiCLI:

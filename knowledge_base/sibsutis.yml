@@ -1,0 +1,107 @@
+# все строки в файле были сгенерированы llm! все example поля - неточные!!!
+# неструктурированной БЗ docs это тоже касается!!!
+# TODO: Собрать точную информацию и грамотно структурировать
+
+university:
+  short_name: "СибГУТИ"
+  full_name: "Сибирский государственный университет телекоммуникаций и информатики"
+  city: "Новосибирск"
+  founded: 1953
+  site: "example: https://sibsutis.ru"
+
+admission:
+  contacts:
+    phone: "example: +7 (XXX) XXX-XX-XX"
+    email: "example: priem@sibsutis.ru"
+    address: "example: г. Новосибирск, ул. Example, д. X"
+    site: "example: https://sibsutis.ru/abitur/"
+  schedule:
+    documents_start: "example: 20 июня"
+    documents_end_budget_no_exams: "example: 25 июля"
+    documents_end_budget_exams: "example: 10 июля"
+    publication_lists: "example: 27 июля"
+    enrollment_priority: "example: 30 июля"
+    enrollment_main: "example: 5 августа"
+  required_documents:
+    - "example: Паспорт (оригинал и копия)"
+    - "example: Аттестат или диплом СПО"
+    - "example: СНИЛС"
+    - "example: Фотографии 3x4"
+    - "example: Результаты ЕГЭ"
+  ways_to_apply:
+    - "example: Лично в приёмной комиссии"
+    - "example: Через Госуслуги"
+    - "example: По почте"
+    - "example: Через личный кабинет абитуриента на сайте"
+
+faculties:
+  - id: example_faculty_1
+    name: "example: Факультет №1"
+    short: "example: Ф1"
+  - id: example_faculty_2
+    name: "example: Факультет №2"
+    short: "example: Ф2"
+
+programs:
+  - id: example_program_1
+    title: "example: XX.XX.XX Название направления"
+    faculty: example_faculty_1
+    degree: "example: Бакалавриат"
+    duration_years: 4
+    forms: ["example: очная", "example: заочная"]
+    exams: ["example: Математика", "example: Русский язык", "example: Информатика"]
+    description: "example: краткое описание направления."
+    keywords: ["example", "программа", "направление"]
+  - id: example_program_2
+    title: "example: XX.XX.XX Второе направление"
+    faculty: example_faculty_2
+    degree: "example: Бакалавриат"
+    duration_years: 4
+    forms: ["example: очная"]
+    exams: ["example: Математика", "example: Русский язык", "example: Физика"]
+    description: "example: краткое описание второго направления."
+    keywords: ["example", "пример"]
+
+scores:
+  example_program_1: { budget_min: 0, paid_min: 0, budget_places: 0 }
+  example_program_2: { budget_min: 0, paid_min: 0, budget_places: 0 }
+
+scholarship:
+  academic_base: 0
+  social_base: 0
+  enhanced_first_year: 0
+  notes:
+    - "example: правила выплаты академической стипендии"
+    - "example: правила выплаты социальной стипендии"
+
+dormitory:
+  available: true
+  monthly_fee_rub: 0
+  notes:
+    - "example: расположение общежитий"
+    - "example: правила заселения"
+
+benefits:
+  - "example: льгота для победителей олимпиад"
+  - "example: целевое обучение от предприятий-партнёров"
+  - "example: льготы для отдельных категорий"
+
+events:
+  open_doors:
+    - month: "example: месяц"
+      description: "example: День открытых дверей"
+  contests:
+    - name: "example: название олимпиады/конкурса"
+      description: "example: описание"
+
+frequently_asked:
+  - q: "example: Можно ли подать документы онлайн?"
+    a: "example: краткий ответ"
+  - q: "example: Какие документы нужны?"
+    a: "example: краткий ответ"
+  - q: "example: Есть ли военная кафедра?"
+    a: "example: краткий ответ"
+  - q: "example: Какое самое популярное направление?"
+    a: "example: краткий ответ"
+  - q: "example: Сколько стоит обучение?"
+    a: "example: краткий ответ"
