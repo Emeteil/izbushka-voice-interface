@@ -8,8 +8,8 @@ storage_folder: "storage"
 knowledge_base_repo: "https://raw.githubusercontent.com/Emeteil/izbushka-knowledge-base/main"
 
 knowledge_base:
-  yaml_path: "knowledge_base/sibsutis.yml"
-  docs_dir: "knowledge_base/docs"
+  yaml_path: "storage/kb_cache/sibsutis.yml"
+  docs_dir: "storage/kb_cache/docs"
   missing_log_path: "storage/missing_info.json"
 
 event_memory:
