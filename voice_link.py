@@ -8,6 +8,7 @@ import websockets
 
 logger = logging.getLogger("VoiceLink")
 
+
 class VoiceLink:
     def __init__(self, ws_url: str, reconnect_interval: float = 5.0):
         self._ws_url = ws_url
@@ -16,6 +17,7 @@ class VoiceLink:
         self._running = False
         self._loop: Optional[asyncio.AbstractEventLoop] = None
         self._thread: Optional[threading.Thread] = None
+        self._connected_event = threading.Event()
 
         self.on_trigger: Optional[Callable] = None
         self.on_stop: Optional[Callable] = None
@@ -23,6 +25,10 @@ class VoiceLink:
     @property
     def connected(self) -> bool:
         return self._ws is not None and self._running
+
+    def wait_until_connected(self, timeout: float = 60.0) -> bool:
+        """Block until connected to web-core or timeout expires. Returns True if connected."""
+        return self._connected_event.wait(timeout=timeout)
 
     def start(self):
         self._running = True
@@ -46,6 +52,7 @@ class VoiceLink:
             try:
                 async with websockets.connect(self._ws_url) as ws:
                     self._ws = ws
+                    self._connected_event.set()
                     logger.info("Connected to web-core")
                     await self._listen(ws)
             except (ConnectionRefusedError, OSError, websockets.exceptions.WebSocketException) as e:

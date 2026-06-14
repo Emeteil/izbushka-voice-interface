@@ -7,14 +7,14 @@ import os
 import shutil
 import subprocess
 
-from settings import *
+from settings import settings, va, detector  # noqa: F401
 from voice_link import VoiceLink
-import external_tools.get_current_time
-import external_tools.set_emotion
-import external_tools.search_knowledge
-import external_tools.documents
-import external_tools.get_contacts
-import external_tools.save_question
+import external_tools.get_current_time  # noqa: F401
+import external_tools.set_emotion  # noqa: F401
+import external_tools.search_knowledge  # noqa: F401
+import external_tools.documents  # noqa: F401
+import external_tools.get_contacts  # noqa: F401
+import external_tools.save_question  # noqa: F401
 
 
 class GeminiCLI:
@@ -25,10 +25,14 @@ class GeminiCLI:
         self._call_lock = threading.Lock()
         self._is_calling = False
 
-        logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", force=True)
+        logging.basicConfig(
+            level=logging.INFO,
+            format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+            force=True)
         self.logger = logging.getLogger(self.__class__.__name__)
 
-        self._audio_command = "mpg123" if shutil.which("mpg123") is not None else "ffplay" if shutil.which("ffplay") is not None else None
+        self._audio_command = "mpg123" if shutil.which(
+            "mpg123") is not None else "ffplay" if shutil.which("ffplay") is not None else None
 
         self.setup_callbacks()
         self.detector.callback = self.on_wake_word
@@ -73,7 +77,10 @@ class GeminiCLI:
             return
         path = os.path.join("sounds", f"{name}.mp3")
         if os.path.exists(path):
-            cmd = [self._audio_command, "-q"] if self._audio_command == "mpg123" else [self._audio_command, "-autoexit", "-nodisp"]
+            cmd = [self._audio_command,
+                   "-q"] if self._audio_command == "mpg123" else [self._audio_command,
+                                                                  "-autoexit",
+                                                                  "-nodisp"]
             cmd.append(path)
             if blocking:
                 subprocess.run(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
@@ -149,13 +156,30 @@ class GeminiCLI:
         finally:
             self._release_call()
 
-    def start(self):
+    def start(self, production: bool = False):
         wake_word_model = settings.get("wake_word_settings", {}).get("model_name", "alexa")
         self.logger.info(f"{Fore.CYAN}[SYS]{Style.RESET_ALL} Запуск CLI. Ожидание wake word ({wake_word_model})...")
         self._play_sound("init")
 
         if self.link:
             self.link.start()
+            if production:
+                timeout = settings.get("web_core", {}).get("production_connect_timeout", 60.0)
+                self.logger.info(
+                    f"{Fore.CYAN}[PROD]{Style.RESET_ALL} Production mode: "
+                    f"ожидание подключения к web-core (таймаут {timeout}с)..."
+                )
+                connected = self.link.wait_until_connected(timeout=timeout)
+                if not connected:
+                    self.logger.error(
+                        f"{Fore.RED}[PROD]{Style.RESET_ALL} Не удалось подключиться к web-core "
+                        f"за {timeout}с. Остановка."
+                    )
+                    self.link.stop()
+                    os._exit(1)
+                self.logger.info(
+                    f"{Fore.GREEN}[PROD]{Style.RESET_ALL} Подключение к web-core установлено. Запуск."
+                )
 
         try:
             self.detector.start()
@@ -181,5 +205,6 @@ if __name__ == "__main__":
         reconnect_interval=web_core.get("reconnect_interval", 5.0)
     )
 
+    production = settings.get("production", False)
     cli_app = GeminiCLI(va, detector, link)
-    cli_app.start()
+    cli_app.start(production=production)

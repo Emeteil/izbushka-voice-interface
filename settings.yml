@@ -33,3 +33,4 @@ web_core:
   reconnect_interval: 5.0
 
 load_dotenv: true
+production: false
