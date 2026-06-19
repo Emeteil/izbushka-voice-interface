@@ -1,4 +1,5 @@
 import os
+import threading
 import yaml
 import requests
 from dotenv import load_dotenv
@@ -97,6 +98,8 @@ event_memory = EventMemory(
     log_messages=True,
 )
 
+audio_lock = threading.RLock()
+
 va = GeminiVA(
     api_key=settings.get("GEMINI_API_KEY") or "",
     system_prompt=system_prompt,
@@ -111,6 +114,7 @@ va = GeminiVA(
     media_handler=LoopbackCameraHandler(
         url=f"http://127.0.0.1:80/api/webcam/stream?token={settings.get('MASTER_TOKEN')}"
     ),
+    audio_lock=audio_lock,
 )
 
 va.memory = event_memory
@@ -120,4 +124,5 @@ detector = WakeWordDetector(
     threshold=settings.get("wake_word_settings").get("threshold"),
     cooldown_sec=settings.get("wake_word_settings").get("cooldown_sec"),
     init_delay_sec=settings.get("wake_word_settings").get("init_delay_sec"),
+    audio_lock=audio_lock,
 )

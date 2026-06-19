@@ -1,5 +1,8 @@
 import asyncio
+import faulthandler
 import threading
+
+faulthandler.enable()
 from colorama import Fore, Style
 from typing import Any
 import logging
