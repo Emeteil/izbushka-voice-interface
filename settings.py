@@ -7,12 +7,30 @@ from dotenv import load_dotenv
 from gemini_engine import GeminiVA
 from custom_handlers import LoopbackCameraHandler
 from wake_word.detector import WakeWordDetector
+from wake_word_null import NullWakeWordDetector
 from knowledge_base import init_knowledge_base
 from event_session import EventMemory
 
 
 with open("settings.yml", "r", encoding="utf-8") as f:
     settings = yaml.load(f, Loader=yaml.FullLoader)
+
+
+def _deep_merge(base: dict, override: dict) -> dict:
+    for key, value in override.items():
+        if isinstance(value, dict) and isinstance(base.get(key), dict):
+            _deep_merge(base[key], value)
+        else:
+            base[key] = value
+    return base
+
+
+_overlay_path = os.environ.get("IZB_SETTINGS_OVERLAY")
+if _overlay_path and os.path.isfile(_overlay_path):
+    with open(_overlay_path, "r", encoding="utf-8") as f:
+        _overlay_settings = yaml.load(f, Loader=yaml.FullLoader)
+    if isinstance(_overlay_settings, dict):
+        _deep_merge(settings, _overlay_settings)
 
 if settings.get("load_dotenv"):
     load_dotenv()
@@ -119,10 +137,13 @@ va = GeminiVA(
 
 va.memory = event_memory
 
-detector = WakeWordDetector(
-    wakeword_models=settings.get("wake_word_settings").get("model_name"),
-    threshold=settings.get("wake_word_settings").get("threshold"),
-    cooldown_sec=settings.get("wake_word_settings").get("cooldown_sec"),
-    init_delay_sec=settings.get("wake_word_settings").get("init_delay_sec"),
-    audio_lock=audio_lock,
-)
+if settings.get("wake_word_settings", {}).get("enabled", True):
+    detector = WakeWordDetector(
+        wakeword_models=settings.get("wake_word_settings").get("model_name"),
+        threshold=settings.get("wake_word_settings").get("threshold"),
+        cooldown_sec=settings.get("wake_word_settings").get("cooldown_sec"),
+        init_delay_sec=settings.get("wake_word_settings").get("init_delay_sec"),
+        audio_lock=audio_lock,
+    )
+else:
+    detector = NullWakeWordDetector()
