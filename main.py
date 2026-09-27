@@ -166,23 +166,6 @@ class GeminiCLI:
 
         if self.link:
             self.link.start()
-            if production:
-                timeout = settings.get("web_core", {}).get("production_connect_timeout", 60.0)
-                self.logger.info(
-                    f"{Fore.CYAN}[PROD]{Style.RESET_ALL} Production mode: "
-                    f"ожидание подключения к web-core (таймаут {timeout}с)..."
-                )
-                connected = self.link.wait_until_connected(timeout=timeout)
-                if not connected:
-                    self.logger.error(
-                        f"{Fore.RED}[PROD]{Style.RESET_ALL} Не удалось подключиться к web-core "
-                        f"за {timeout}с. Остановка."
-                    )
-                    self.link.stop()
-                    os._exit(1)
-                self.logger.info(
-                    f"{Fore.GREEN}[PROD]{Style.RESET_ALL} Подключение к web-core установлено. Запуск."
-                )
 
         try:
             self.detector.start()

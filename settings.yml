@@ -18,6 +18,7 @@ event_memory:
   max_history_messages: 40
 
 wake_word_settings:
+  enabled: true
   model_name: "wake_word_models/alexa_v0.1.onnx"
   threshold: 0.4
   cooldown_sec: 3.0
