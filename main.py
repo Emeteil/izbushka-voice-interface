@@ -157,7 +157,15 @@ class GeminiCLI:
         try:
             self.run_va()
         finally:
+            was_calling = self.is_calling
             self._release_call()
+            if was_calling:
+                self._play_sound("disconnect")
+                self.logger.info(f"{Fore.YELLOW}[SYS]{Style.RESET_ALL} Сессия завершилась без online-статуса.")
+                self.logger.info(f"{Fore.CYAN}[SYS]{Style.RESET_ALL} Ожидание wake word...")
+                if self.link:
+                    self.link.send_event("voice.status_changed", {"status": "idle"})
+                self.detector.unpause()
 
     def start(self, production: bool = False):
         wake_word_model = settings.get("wake_word_settings", {}).get("model_name", "alexa")
