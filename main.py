@@ -17,7 +17,6 @@ import external_tools.set_emotion  # noqa: F401
 import external_tools.search_knowledge  # noqa: F401
 import external_tools.documents  # noqa: F401
 import external_tools.get_contacts  # noqa: F401
-import external_tools.save_question  # noqa: F401
 
 
 class GeminiCLI:

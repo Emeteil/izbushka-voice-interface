@@ -2,15 +2,20 @@ import cv2
 import base64
 import threading
 import time
+import numpy as np
+import requests
 from typing import Optional, Tuple
 from gemini_engine.media import BaseMediaHandler
 
 
 class LoopbackCameraHandler(BaseMediaHandler):
     def __init__(self, url: str, rate: float = 1.0):
+        # a plain single-shot JPEG GET is used instead of cv2.VideoCapture on the
+        # MJPEG stream: a long-lived FFmpeg demux thread over HTTP proved to be an
+        # unstable native dependency (observed a process-wide segfault in it), and
+        # this handler only ever needs the latest frame, not continuous decoding.
         self.url = url
         self._rate = rate
-        self.cap = cv2.VideoCapture(url)
         self.last_frame = None
         self.lock = threading.Lock()
         self.running = True
@@ -23,31 +28,17 @@ class LoopbackCameraHandler(BaseMediaHandler):
 
     def _capture_worker(self):
         while self.running:
-            if not self.cap or not self.cap.isOpened():
-                if self.cap:
-                    try:
-                        self.cap.release()
-                    except BaseException:
-                        pass
-                self.cap = cv2.VideoCapture(self.url)
-                time.sleep(1)
-                continue
-
             try:
-                ret, frame = self.cap.read()
-                if not ret:
-                    time.sleep(0.01)
-                    continue
-                with self.lock:
-                    self.last_frame = frame
+                resp = requests.get(self.url, timeout=3.0)
+                resp.raise_for_status()
+                buffer = np.frombuffer(resp.content, dtype=np.uint8)
+                frame = cv2.imdecode(buffer, cv2.IMREAD_COLOR)
+                if frame is not None:
+                    with self.lock:
+                        self.last_frame = frame
             except Exception:
-                if self.cap:
-                    try:
-                        self.cap.release()
-                    except BaseException:
-                        pass
-                self.cap = None
-                time.sleep(1)
+                pass
+            time.sleep(max(0.0, 1.0 / self._rate))
 
     def get_chunk(self) -> Optional[Tuple[str, str]]:
         with self.lock:
@@ -65,5 +56,3 @@ class LoopbackCameraHandler(BaseMediaHandler):
 
     def close(self) -> None:
         self.running = False
-        if self.cap:
-            self.cap.release()

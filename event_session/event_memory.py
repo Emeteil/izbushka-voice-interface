@@ -79,28 +79,6 @@ class EventMemory:
             self._persist_facts_locked()
         self.reset_session()
 
-    def record_question(
-        self,
-        question: str,
-        answer: Optional[str] = None,
-        topic: Optional[str] = None,
-    ) -> Dict[str, Any]:
-        question = (question or "").strip()
-        if not question:
-            return {"recorded": False, "reason": "empty question"}
-        fact = {
-            "id": uuid.uuid4().hex,
-            "kind": "question",
-            "question": question,
-            "answer": (answer or "").strip() or None,
-            "topic": (topic or "").strip() or None,
-            "created_at": datetime.now(timezone.utc).isoformat(),
-        }
-        with self._lock:
-            self._facts.append(fact)
-            self._persist_facts_locked()
-        return {"recorded": True, "fact": fact}
-
     def reset_session(self) -> List[Dict[str, Any]]:
         with self._lock:
             old = list(self._session)
