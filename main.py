@@ -3,20 +3,20 @@ import faulthandler
 import threading
 
 faulthandler.enable()
-from colorama import Fore, Style
-from typing import Any
-import logging
-import os
-import shutil
-import subprocess
+from colorama import Fore, Style  # noqa: E402
+from typing import Any  # noqa: E402
+import logging  # noqa: E402
+import os  # noqa: E402
+import shutil  # noqa: E402
+import subprocess  # noqa: E402
 
-from settings import settings, va, detector  # noqa: F401
-from voice_link import VoiceLink
-import external_tools.get_current_time  # noqa: F401
-import external_tools.set_emotion  # noqa: F401
-import external_tools.search_knowledge  # noqa: F401
-import external_tools.documents  # noqa: F401
-import external_tools.get_contacts  # noqa: F401
+from settings import settings, va, detector  # noqa: F401, E402
+from voice_link import VoiceLink  # noqa: E402
+import external_tools.get_current_time  # noqa: F401, E402
+import external_tools.set_emotion  # noqa: F401, E402
+import external_tools.search_knowledge  # noqa: F401, E402
+import external_tools.documents  # noqa: F401, E402
+import external_tools.get_contacts  # noqa: F401, E402
 
 
 class GeminiCLI:
