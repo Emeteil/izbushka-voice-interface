@@ -6,7 +6,7 @@ python-dotenv==1.2.2
 PyYAML==6.0.3
 scipy==1.15.3
 sounddevice==0.4.6
-websockets==14.2
+websockets==15.0.1
 requests
 onnxruntime
 tqdm
