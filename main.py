@@ -42,6 +42,8 @@ class GeminiCLI:
         if self.link:
             self.link.on_trigger = self._on_remote_trigger
             self.link.on_stop = self._on_remote_stop
+            self.link.on_wake_word_set = self._on_wake_word_set
+            self.link.on_connected = self._report_wake_word
 
     def setup_callbacks(self) -> None:
         self.va.on_log = lambda t: self._handle_log(t)
@@ -137,6 +139,15 @@ class GeminiCLI:
     def _on_remote_trigger(self):
         self.logger.info(f"{Fore.GREEN}[REMOTE]{Style.RESET_ALL} Удалённый вызов ассистента")
         self.on_wake_word("remote_trigger")
+
+    def _report_wake_word(self) -> None:
+        if self.link:
+            self.link.send_event("voice.wake_word_changed", {"enabled": self.detector.enabled})
+
+    def _on_wake_word_set(self, enabled: bool) -> None:
+        self.logger.info(f"{Fore.CYAN}[REMOTE]{Style.RESET_ALL} Wake word: {'включить' if enabled else 'выключить'}")
+        self.detector.set_enabled(enabled)
+        self._report_wake_word()
 
     def _on_remote_stop(self):
         self.logger.info(f"{Fore.YELLOW}[REMOTE]{Style.RESET_ALL} Удалённая остановка ассистента")

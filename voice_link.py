@@ -21,6 +21,8 @@ class VoiceLink:
 
         self.on_trigger: Optional[Callable] = None
         self.on_stop: Optional[Callable] = None
+        self.on_wake_word_set: Optional[Callable[[bool], None]] = None
+        self.on_connected: Optional[Callable] = None
 
     @property
     def connected(self) -> bool:
@@ -54,6 +56,7 @@ class VoiceLink:
                     self._ws = ws
                     self._connected_event.set()
                     logger.info("Connected to web-core")
+                    self._notify_connected()
                     await self._listen(ws)
             except (ConnectionRefusedError, OSError, websockets.exceptions.WebSocketException) as e:
                 if self._running:
@@ -70,18 +73,30 @@ class VoiceLink:
                 try:
                     msg = json.loads(message)
                     event = msg.get("event", "")
-                    self._dispatch(event)
+                    self._dispatch(event, msg.get("data") or {})
                 except json.JSONDecodeError:
                     pass
         except websockets.exceptions.ConnectionClosed:
             logger.info("Disconnected from web-core")
 
-    def _dispatch(self, event: str):
+    def _notify_connected(self):
+        if self.on_connected:
+            try:
+                self.on_connected()
+            except Exception as e:
+                logger.error(f"Connected callback error: {e}")
+
+    def _dispatch(self, event: str, data: dict = None):
         if event == "voice.trigger" and self.on_trigger:
             try:
                 self.on_trigger()
             except Exception as e:
                 logger.error(f"Trigger callback error: {e}")
+        elif event == "voice.wake_word" and self.on_wake_word_set:
+            try:
+                self.on_wake_word_set(bool((data or {}).get("enabled")))
+            except Exception as e:
+                logger.error(f"Wake word callback error: {e}")
         elif event == "voice.stop" and self.on_stop:
             try:
                 self.on_stop()

@@ -6,8 +6,7 @@ from dotenv import load_dotenv
 
 from gemini_engine import GeminiVA
 from custom_handlers import LoopbackCameraHandler
-from wake_word.detector import WakeWordDetector
-from wake_word_null import NullWakeWordDetector
+from wake_word_runtime import RuntimeWakeWordDetector
 from knowledge_base import init_knowledge_base
 from event_session import EventMemory
 
@@ -137,13 +136,11 @@ va = GeminiVA(
 
 va.memory = event_memory
 
-if settings.get("wake_word_settings", {}).get("enabled", True):
-    detector = WakeWordDetector(
-        wakeword_models=settings.get("wake_word_settings").get("model_name"),
-        threshold=settings.get("wake_word_settings").get("threshold"),
-        cooldown_sec=settings.get("wake_word_settings").get("cooldown_sec"),
-        init_delay_sec=settings.get("wake_word_settings").get("init_delay_sec"),
-        audio_lock=audio_lock,
-    )
-else:
-    detector = NullWakeWordDetector()
+detector = RuntimeWakeWordDetector(
+    wakeword_models=settings.get("wake_word_settings").get("model_name"),
+    threshold=settings.get("wake_word_settings").get("threshold"),
+    cooldown_sec=settings.get("wake_word_settings").get("cooldown_sec"),
+    init_delay_sec=settings.get("wake_word_settings").get("init_delay_sec"),
+    audio_lock=audio_lock,
+    enabled=bool(settings.get("wake_word_settings", {}).get("enabled", True)),
+)
